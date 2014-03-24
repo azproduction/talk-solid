@@ -1,0 +1,312 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+	<title>SOLID</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=1274, user-scalable=no">
+	<link rel="stylesheet" href="styles/screen.css">
+	<link rel="stylesheet" href="styles/print.css" media="print">
+    <link rel="stylesheet" href="styles/idea.min.css">
+</head>
+<body class="list">
+	<header class="caption">
+		<h1>SOLID</h1>
+		<a href="http://twitter.com/azproduction">Михаил Давыдов</a>
+	</header>
+
+	<section class="slide null">
+		<img src="images/yandex_lang_ru.svg" class="yandex"/>
+	</section>
+
+    <section class="slide first"><div class="arrow">
+    	<img src="images/yandex_lang_ru.svg" class="yandex"/>
+		<h2>SOLID</h2>
+        <div class="info">
+            <p class="author">Михаил Давыдов</p>
+            <p class="location">Курс по паттернам, 2014</p>
+        </div>
+    </div></section>
+
+    <section class="slide">
+        <h2>S.O.L.I.D</h2>
+        <ul>
+            <li>5 принципов проектирования
+                <ul>
+                    <li><span class="first-red">S</span>ingle responsibility</li>
+                    <li><span class="first-red">O</span>pen-closed</li>
+                    <li><span class="first-red">L</span>iskov substitution</li>
+                    <li><span class="first-red">I</span>nterface segregation</li>
+                    <li><span class="first-red">D</span>ependency inversion</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Нафига S.O.L.I.D?</h2>
+        <ul>
+            <li>Приложения постоянно эволюционируют</li>
+            <li>Добавляются безумные фичи</li>
+            <li>Есть сложные условия активации фичей</li>
+            <li>Без каркаса приложение развалится</li>
+            <li>Приложения огромны с кучей связей</li>
+        </ul>
+    </section>
+
+    <section class="slide shout">
+        <h2>Single<br>Responsibility<br>Principle</h2>
+    </section>
+
+    <section class="slide shout">
+        <h2>Принцип<br>единственной<br>ответственности</h2>
+    </section>
+
+    <section class="slide">
+        <h2>Single Responsibility</h2>
+        <blockquote>На каждую сущность должна быть возложена одна единственная ответственность.</blockquote>
+        <ul>
+            <li class="next">Единственная причина для изменения
+                <ul>
+                    <li>Точечные изменения &rarr; меньше ошибок</li>
+                </ul>
+            </li>
+            <li class="next">Одна ответственность &ne; одна функция
+                <ul>
+                    <li>Прим. <code>JSON.parse</code> & <code>JSON.stringify</code></li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Влияние Single Responsibility</h2>
+        <ul>
+            <li>Структура приложения</li>
+            <li>Маленькие модули</li>
+            <li>Меньше влияния изменений</li>
+            <li>Проще и честнее тесты</li>
+            <li>Дешевле реиспользовать модули</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример про Корзину</h2>
+        <pre class="javascript">
+            <code>function addToCart(e) {</code>
+            <code>    var $el = $(this);</code>
+            <code>    <mark class="next">cart.push</mark>($el.attr('id'), $el.attr('title'));</code>
+            <code>    var newItem = <mark class="next">$('&lt;li&gt;&lt;/li&gt;')</mark></code>
+            <code>        .html($el.attr('title'))</code>
+            <code>        .attr('id-cart', $el.attr('id'))</code>
+            <code>        .appendTo('#cart');</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Знает о структуре шаблона</li>
+            <li class="next">Заполняет храниище данных</li>
+            <li class="next">Генерирует DOM-ноды</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Исправленный пример</h2>
+        <pre class="javascript">
+            <code>function addToCart(item) {</code>
+            <code>    cart.add(_.pick(item, ['id', 'title']));</code>
+            <code>}</code>
+        </pre>
+        <pre class="javascript">
+            <code>this.bindTo(cart, 'add', function (item) {</code>
+            <code>    <mark class="next">render</mark>(item).<mark class="next">appendTo</mark>(<mark class="next">this.$el</mark>);</code>
+            <code>});</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Знает способ рендера
+                <ul>
+                    <li><code>render()</code></li>
+                </ul>
+            </li>
+            <li class="next">Знает как добавлять элементы
+                <ul>
+                    <li><code>.appendTo()</code></li>
+                </ul>
+            </li>
+            <li class="next">Знает куда добавлять
+                <ul>
+                    <li><code>this.$el</code></li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Более исправленный пример</h2>
+        <pre class="javascript">
+            <code>bind('#cart', {</code>
+            <code>    cart: cart</code>
+            <code>});</code>
+        </pre>
+        <pre class="html">
+            <code>&lt;ul id="cart"&gt;</code>
+            <code>    &lt;li data-each-item="cart" id="{item.id}"&gt;</code>
+            <code>        {item.title}</code>
+            <code>    &lt;/li&gt;</code>
+            <code>&lt;/ul&gt;</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример про Mailer</h2>
+        <pre class="javascript">
+            <code>class MyMailer {</code>
+            <code>    send (options, cb) {</code>
+            <code>        <mark class="next">smtpTransport.sendMail</mark>(options, function () {</code>
+            <code>            cb();</code>
+            <code>            <mark class="next">console.log('Message sent');</mark></code>
+            <code>        });</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Отрпвляет почту</li>
+            <li class="next">Ведет лог</li>
+            <li class="next">Значет про консоль</li>
+            <li class="next">Сложно протестировать</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Исправленный пример</h2>
+        <pre class="javascript">
+            <code>class MyMailer {</code>
+            <code>    /**</code>
+            <code>     * @param {ILogger} logger</code>
+            <code>     */</code>
+            <code>    constructor(logger) {</code>
+            <code>        this.logger = logger;</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Исправленный пример</h2>
+        <pre class="javascript">
+            <code>class MyMailer {</code>
+            <code>    send (options, cb) {</code>
+            <code>        smtpTransport.sendMail(options, => {</code>
+            <code>            cb();</code>
+            <code>            <mark class="next">this.logger.log('Message sent');</mark></code>
+            <code>        });</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Отрпвляет почту</li>
+            <li class="next">Ведет лог</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Более исправленный пример</h2>
+        <pre class="javascript">
+            <code>class MyMailer extends EventEmitter {</code>
+            <code>    send (options, <mark class="next">cb</mark>) {</code>
+            <code>        smtpTransport.sendMail(options, => {</code>
+            <code>            <mark class="next">cb();</mark></code>
+            <code>            this.emit('done', 'Message sent');</code>
+            <code>        });</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Стереотипы ролей объектов</h2>
+        <ul>
+            <li>Information holder &mdash; хранит и предоставляет информацию другим</li>
+            <li>Structurer &mdash; поддерживает связи между другими объектами</li>
+            <li>Service provider &mdash; объект со специфичной задачей по требованию</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Стереотипы ролей объектов</h2>
+        <ul>
+            <li>Controller &mdash; решает что делать и управляет действием</li>
+            <li>Coordinator &mdash; ничего не решает, но делегирует работу на других</li>
+            <li>Interfacer &mdash; трансформирует информацию или запросы</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Задачи</h2>
+        <ul>
+            <li>Рефакторинг кода</li>
+            <li>Написание кода</li>
+        </ul>
+    </section>
+
+    <section class="slide shout">
+        <h2>Open-<br>Closed<br>Principle</h2>
+    </section>
+
+    <section class="slide shout">
+        <h2>Принцип<br>открытости-<br>закрытости</h2>
+    </section>
+
+    <section class="slide">
+        <h2>Заключение</h2>
+        <ul>
+            <li>TODO</li>
+        </ul>
+    </section>
+
+    <div class="slide last">
+        <img src="images/yandex_lang_ru.svg" class="yandex"/>
+        <h2>SOLID</h2>
+        <div class="info">
+            <p class="author">Михаил Давыдов</p>
+            <p class="author social">
+                <a href="http://habrahabr.ru/users/azproduction"><img src="images/js.svg" alt=""/></a><a href="http://github.com/azproduction"><img src="images/github.svg" alt=""/></a><a href="http://twitter.com/azproduction"><img src="images/twitter.svg" alt=""/></a><a href="http://twitter.com/azproduction">@azproduction</a>
+            </p>
+        </div>
+    </div>
+
+    <section class="slide">
+        <h2>Полезные ресусы</h2>
+        <ul>
+            <li>TODO</li>
+        </ul>
+    </section>
+
+    <section class="slide cover c qr-code">
+        <a href="http://clck.ru/***">clck.ru/***</a>
+        <img src="js/holder.js/480x480" alt="">
+    </section>
+
+	<div class="progress"><div></div></div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/highlight.min.js"></script>
+    <script src="js/shower/shower.min.js"></script>
+    <script src="js/holder.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
