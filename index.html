@@ -32,11 +32,11 @@
         <ul>
             <li>5 принципов проектирования
                 <ul>
-                    <li><span class="first-red">S</span>ingle responsibility</li>
-                    <li><span class="first-red">O</span>pen-closed</li>
-                    <li><span class="first-red">L</span>iskov substitution</li>
-                    <li><span class="first-red">I</span>nterface segregation</li>
-                    <li><span class="first-red">D</span>ependency inversion</li>
+                    <li class="next"><span class="first-red">S</span>ingle responsibility</li>
+                    <li class="next"><span class="first-red">O</span>pen-closed</li>
+                    <li class="next"><span class="first-red">L</span>iskov substitution</li>
+                    <li class="next"><span class="first-red">I</span>nterface segregation</li>
+                    <li class="next"><span class="first-red">D</span>ependency inversion</li>
                 </ul>
             </li>
         </ul>
@@ -79,17 +79,6 @@
     </section>
 
     <section class="slide">
-        <h2>Влияние Single Responsibility</h2>
-        <ul>
-            <li>Структура приложения</li>
-            <li>Маленькие модули</li>
-            <li>Меньше влияния изменений</li>
-            <li>Проще и честнее тесты</li>
-            <li>Дешевле реиспользовать модули</li>
-        </ul>
-    </section>
-
-    <section class="slide">
         <h2>Пример про Корзину</h2>
         <pre class="javascript">
             <code>function addToCart(e) {</code>
@@ -120,7 +109,7 @@
             <code>}</code>
         </pre>
         <pre class="javascript">
-            <code>this.bindTo(cart, 'add', function (item) {</code>
+            <code>this.bindTo(cart, 'add', (item) => {</code>
             <code>    <mark class="next">render</mark>(item).<mark class="next">appendTo</mark>(<mark class="next">this.$el</mark>);</code>
             <code>});</code>
         </pre>
@@ -168,7 +157,7 @@
         <pre class="javascript">
             <code>class MyMailer {</code>
             <code>    send (options, cb) {</code>
-            <code>        <mark class="next">smtpTransport.sendMail</mark>(options, function () {</code>
+            <code>        <mark class="next">this.smtpTransport.sendMail</mark>(options, () => {</code>
             <code>            cb();</code>
             <code>            <mark class="next">console.log('Message sent');</mark></code>
             <code>        });</code>
@@ -206,7 +195,7 @@
         <pre class="javascript">
             <code>class MyMailer {</code>
             <code>    send (options, cb) {</code>
-            <code>        smtpTransport.sendMail(options, => {</code>
+            <code>        this.smtpTransport.sendMail(options, => {</code>
             <code>            cb();</code>
             <code>            <mark class="next">this.logger.log('Message sent');</mark></code>
             <code>        });</code>
@@ -228,7 +217,7 @@
         <pre class="javascript">
             <code>class MyMailer extends EventEmitter {</code>
             <code>    send (options, <mark class="next">cb</mark>) {</code>
-            <code>        smtpTransport.sendMail(options, => {</code>
+            <code>        this.smtpTransport.sendMail(options, => {</code>
             <code>            <mark class="next">cb();</mark></code>
             <code>            this.emit('done', 'Message sent');</code>
             <code>        });</code>
@@ -255,8 +244,23 @@
         </ul>
     </section>
 
+    <section class="slide shout">
+        <h2>Стереотипы ролей помогают разделять ответственность</h2>
+    </section>
+
     <section class="slide">
-        <h2>Задачи</h2>
+        <h2>Влияние Single Responsibility</h2>
+        <ul>
+            <li>Маленькие модули</li>
+            <li>Проще и честнее тесты</li>
+            <li>Четкая структура приложения</li>
+            <li>Дешевле реиспользовать модули</li>
+            <li>Меньше негативных последствий изменений</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Задачи по SRP</h2>
         <ul>
             <li>Рефакторинг кода</li>
             <li>Написание кода</li>
@@ -269,6 +273,199 @@
 
     <section class="slide shout">
         <h2>Принцип<br>открытости-<br>закрытости</h2>
+    </section>
+
+    <section class="slide">
+        <h2>Open-Closed</h2>
+        <blockquote>Сущности (классы, модули, функции) должны быть открыты к раширению, но закрыты от модификаций.</blockquote>
+        <ul>
+            <li class="next">TL;DR Плагины &mdash; это вин!</li>
+            <li class="next">Расширяемость сущностей
+                <ul>
+                    <li>Гибко меняют поведение</li>
+                </ul>
+            </li>
+            <li class="next">Закрытость сущностей
+                <ul>
+                    <li>Адаптация не должна влиять на код сущности</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример с отрисовкой вопросов</h2>
+        <pre class="javascript">
+            <code>function renderQuestion (q) {</code>
+            <code>    switch (q.type) {</code>
+            <code>        <mark class="next">case 'yes-no'</mark>:</code>
+            <code>        <mark class="next">case 'multi'</mark>:</code>
+            <code>            return q.title + renderAnswers(q.answers);</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Новый тип вопроса = изменеие кода</li>
+            <li class="next">Несколько обязанностей</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Исправленный пример</h2>
+        <pre class="javascript">
+            <code>class QuestionRenderer {</code>
+            <code>    constructor () {</code>
+            <code>        this.methods = {};</code>
+            <code>    }</code>
+            <code>    use (methods) {</code>
+            <code>        Object.assign(this.methods, methods);</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Исправленный пример</h2>
+        <pre class="javascript">
+            <code>class QuestionRenderer {</code>
+            <code>    render (question) {</code>
+            <code>        return this.methods[question.type](question);</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Опять пример про Mailer</h2>
+        <pre class="javascript">
+            <code>class MyMailer {</code>
+            <code>    send (mail, cb) {</code>
+            <code>        <mark class="next">this.smtpTransport.sendMail</mark>(mail, => () {</code>
+            <code>            cb();</code>
+            <code>            <mark class="next">console.log('Message sent');</mark></code>
+            <code>        });</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Отрпвляет почту</li>
+            <li class="next">Ведет лог</li>
+            <li class="next">Нельзя определить формат лога</li>
+            <li class="next">Нельзя изменить логгер (консоль, БД, сервис)</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Исправленный пример</h2>
+        <pre class="javascript">
+            <code>class MyMailer extends EventEmitter {</code>
+            <code>    send (mail) {</code>
+            <code>        this.emit('before-send', mail);</code>
+            <code>        this.smtpTransport.sendMail(mail, => (err, st) {</code>
+            <code>            if (err) return this.emit('error', err);</code>
+            <code>            this.emit('after-send', st);</code>
+            <code>        });</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример использования</h2>
+        <pre class="javascript">
+            <code>var mailer = new MyMailer(options);</code>
+            <code>listenTo(mailer, 'before-send', formatAndSaveLogToDb);</code>
+            <code>listenTo(mailer, 'after-send', formatAndPipeToStdout);</code>
+            <code>listenTo(mailer, 'after-send', () => res.render('ok'));</code>
+            <code>listenTo(mailer, 'error', sendAlertSmsTo(cfg.adminEmail));</code>
+            <code>mailer.send(someMail);</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример про робота</h2>
+        <pre class="javascript">
+            <code>class Robot {</code>
+            <code>    constructor (weapons) {</code>
+            <code>        this.weapons = weapons;</code>
+            <code>        this.weapon = weapons[0];</code>
+            <code>    }</code>
+            <code>    shoot () {}</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример про робота</h2>
+        <pre class="javascript">
+            <code>shoot () {</code>
+            <code>    if (<mark class="next">this.weapon instanceof Shotgun</mark>) {</code>
+            <code>        this.weapon.loadShell(1);</code>
+            <code>        this.weapon.pressTrigger();</code>
+            <code>    }</code>
+            <code>    if (<mark class="next">this.weapon instanceof Grenade</mark>) {</code>
+            <code>        this.weapon.throw();</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Знает про все типы оружия</li>
+            <li class="next">Знает как пользоватсья каждым</li>
+            <li class="next">Новое оружение = изменеие кода</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Исправленный пример</h2>
+        <pre class="javascript">
+            <code>class Robot {</code>
+            <code>    constructor (weapons) {</code>
+            <code>        this.weapons = weapons;</code>
+            <code>        this.weapon = weapons[0];</code>
+            <code>    }</code>
+            <code>    shoot () {</code>
+            <code>        this.weapon.use();</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Влияние Open-Closed</h2>
+        <ul>
+            <li>Сущности более гибкие</li>
+            <li>Проще тестировать</li>
+            <li>Меньше сильных связей
+                <ul>
+                    <li>Зависимость от интерфейса</li>
+                </ul>
+            </li>
+            <li>Меньше правок в базовых сущностях
+                <ul>
+                    <li>Особенно если они чужие</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Задачи по OCP</h2>
+        <ul>
+            <li>Рефакторинг кода</li>
+            <li>Написание кода</li>
+        </ul>
     </section>
 
     <section class="slide">
