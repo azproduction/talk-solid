@@ -250,12 +250,15 @@ table.striped tr:nth-child(even) {
     margin-right: 20px;
 }
 
-.slide.cover .next {
+.slide.cover .next,
+.slide blockquote.next {
     display: none;
 }
 
 body.list .slide.cover .next,
-.slide.cover .next.active {
+.slide.cover .next.active,
+.slide blockquote.next.active,
+body.list .slide blockquote.next {
     display: block;
 }
 

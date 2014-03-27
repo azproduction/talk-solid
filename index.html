@@ -477,6 +477,241 @@
     </section>
 
     <section class="slide">
+        <h2>Liskov Substitution</h2>
+        <blockquote>Сущности, которые используют базовый тип, должны иметь возможность использовать подтипы базового
+            типа не зная об этом.</blockquote>
+        <blockquote class="next">Подкласс <b>не должен требовать</b> от вызывающего кода <b>больше</b>, чем базовый класс, и
+            <b>не должен предоставлять</b> вызывающему коду <b>меньше</b>, чем базовый класс.</blockquote>
+        <ul>
+            <li class="next">Наследники сохраняют семантику.</li>
+            <li class="next">Ожидаемое поведение для использующих.</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Liskov Substitution</h2>
+        <ul>
+            <li>Сабклассы сохраняют поведение родителя
+                <ul>
+                    <li class="next"><b>Предусловия</b> не могут быть <b>усилены</b>.</li>
+                    <li class="next"><b>Постусловия</b> не могут быть <b>ослаблены</b>.</li>
+                    <li class="next">Не могут выбрасывать новые исключения.</li>
+                    <li class="next">Инварианты должны быть сохранены.</li>
+                    <li class="next">Соблюдены исторические ограничения.</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример нарушения Предусловий</h2>
+        <pre class="javascript">
+            <code>var robot = new Robot();</code>
+            <code>robot.shot();</code>
+            <code>// class SniperRobot extends Robot</code>
+            <code>var robot = new SniperRobot();</code>
+            <code><mark class="next">robot.reload();</mark></code>
+            <code>robot.shot();</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Производный класс вводит предусловие <code>reload()</code></li>
+            <li>Пользователю класса придется проверять на instanceof</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример нарушения Постусловий</h2>
+        <pre class="javascript">
+            <code>class PointFromIp extends Geolocation {</code>
+            <code>    getLocation () {</code>
+            <code>        <mark class="next">return super().point;</mark></code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Производный класс ослабляет интерфейс <code>getLocation()</code> (меняет)</li>
+            <li>Пользователю класса придется проверять на instanceof</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример нарушения Исключений</h2>
+        <pre class="javascript">
+            <code>function Robot(name) {</code>
+            <code>    this.name = name;</code>
+            <code>}</code>
+            <code>function RobotMk2 (name, weapons) {</code>
+            <code>    Robot.call(this, name);</code>
+            <code>    <mark class="next">if (!weapons) throw new Error();</mark></code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Класс вводит обязательный агрумент <code>weapons</code></li>
+            <li>Пользователь класса добавит try/catch</li>
+            <li>Пользователь класса добавит костыль для weapons</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример нарушения Инвариантности</h2>
+        <pre class="javascript">
+            <code>class Vehicle {</code>
+            <code>    constructor () {</code>
+            <code>        this.speed = 0;</code>
+            <code>    }</code>
+            <code>    accelerate () { this.speed++; }</code>
+            <code>    decelerate () { this.speed--; }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример нарушения Инвариантности</h2>
+        <pre class="javascript">
+            <code>class FastVehicle extends Vehicle {</code>
+            <code>    accelerate () { this.speed++; <mark class="next">this.speed++;</mark> }</code>
+            <code>}</code>
+            <code>var vehicle = new FastVehicle();</code>
+            <code>vehicle.accelerate();</code>
+            <code>vehicle.decelerate();</code>
+            <code><mark class="next">expect(vehicle.speed).to.equal(0);</mark></code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример нарушения Инвариантности</h2>
+        <pre class="javascript">
+            <code>class Person {</code>
+            <code>    decelerateBike () {</code>
+            <code>        this.bike.decelerate();</code>
+            <code>        if (<mark class="next">this.bike instanceof FastVehicle</mark>) {</code>
+            <code>            <mark class="next">this.bike.decelerate();</mark></code>
+            <code>        }</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Класс не соблюдает инвариантность состояния</li>
+            <li>Пользователю нужно знать про реализации класса (FastVehicle)</li>
+            <li>Пользователь вводит костыль</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример нарушения Исторических ограничений</h2>
+        <pre class="javascript">
+            <code>class Point {</code>
+            <code>    center() {</code>
+            <code>        return this._center;</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример нарушения Исторических ограничений</h2>
+        <pre class="javascript">
+            <code>class MutablePoint extends Point {</code>
+            <code>    center(value) {</code>
+            <code>        if (!value) return this._center;</code>
+            <code>        <mark class="next">this._center = value;</mark></code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Класс не соблюдает исторические ограничения</li>
+            <li><code>Point._center</code> стал мутабильный</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример соблюдения Исторических ограничений</h2>
+        <pre class="javascript">
+            <code>class Circle extends Point {</code>
+            <code>    radius(value) {</code>
+            <code>        if (!value) return this._radius;</code>
+            <code>        this._radius = value;</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример</h2>
+        <pre class="javascript">
+            <code>class Square extends <mark class="next">Rectangle</mark> {</code>
+            <code>    width(value) {</code>
+            <code>        if (!value) return this._width;</code>
+            <code>        this._width = value;</code>
+            <code>        <mark class="next">this._height = value;</mark></code>
+            <code>    }</code>
+            <code>    height(value) { return this.width(value); }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Не соблюдается инвариантность класса</li>
+            <li>Лучше создать новый класс <code>Square</code></li>
+        </ul>
+        <pre class="javascript">
+            <code>var sq = new Square();</code>
+            <code>sq.width(1);</code>
+            <code>sq.height(2);</code>
+            <code>expect(sq.width() * sq.height()).to.equal(2);</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Влияние Liskov substitution</h2>
+        <ul>
+            <li>Проектирование по контракту</li>
+            <li>Поведение объекта + интерфейс</li>
+            <li>Предсказуемое поведение потомков</li>
+            <li>Поощряется написание тестов поведения</li>
+            <li>Композиция классов важнее навледования</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Задачи по LSP</h2>
+        <ul>
+            <li>Рефакторинг кода</li>
+            <li>Написание кода</li>
+        </ul>
+    </section>
+
+    <section class="slide shout" style="background: url(pictures/isp-pattern.jpg)">
+        <h2>Interface<br>Segregation<br>Principle</h2>
+    </section>
+
+    <section class="slide shout" style="background: url(pictures/isp-pattern.jpg)">
+        <h2>Принцип<br>разделения<br>интерфейса</h2>
+    </section>
+
+    <section class="slide">
         <h2>Заключение</h2>
         <ul>
             <li>TODO</li>
