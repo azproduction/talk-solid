@@ -1,0 +1,284 @@
+.run-example {
+    font-size: 200%;
+}
+
+.sandbox_type_fullscreen {
+    border: 0 none;
+    height: 100%;
+    left: 0;
+    line-height: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.slide {
+    overflow: hidden;
+}
+
+.ball {
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+    background: #000;
+    position: relative;
+}
+
+section.slide h2 {
+    display: inline-block;
+    padding: 20px 40px;
+    margin: 0 0 0 -40px;
+}
+
+section.slide.cover h2 {
+    margin-bottom: 37px;
+}
+
+.slide.cover h2 {
+    position: absolute;
+    bottom: 0;
+}
+
+.slide pre.l-10 code {
+    font-size: 70%;
+}
+
+.slide pre.l-9 code {
+    font-size: 75%;
+}
+
+.slide pre.l-8 code {
+    font-size: 90%;
+    line-height: 190%;
+}
+
+.slide pre code.active,
+.slide pre code span.active {
+    margin:0;
+    background:#C00;
+    color:#FFF;
+    font-weight:normal;
+}
+
+.slide pre code span.active {
+    border-radius: 8px;
+    padding: 5px;
+    margin-left: -5px;
+}
+
+.slide pre.relative {
+    position: relative;
+}
+
+.full .slide pre.next,
+.full .slide img.next {
+	opacity:0;
+	}
+.full .slide pre.next.active,
+.full .slide img.next.active {
+	opacity:1;
+	-webkit-transition:opacity 0.5s linear;
+	-moz-transition:opacity 0.5s linear;
+	-ms-transition:opacity 0.5s linear;
+	-o-transition:opacity 0.5s linear;
+	transition:opacity 0.5s linear;
+	}
+
+.slide pre.console {
+   	-webkit-border-radius:0;
+   	-moz-border-radius:0;
+    border-radius:0;
+   	color:#fff;
+   	-webkit-tab-size:4;
+   	-moz-tab-size:4;
+   	-o-tab-size:4;
+   	tab-size:4;
+   	line-height:1;
+   	font-family: 'PT Mono', monospace;
+
+    position: absolute;
+    display: none;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 50%;
+    overflow-y: auto;
+
+    box-sizing: border-box;
+    padding: 30px 0 0 30px;
+
+    font-size: 120%;
+
+    background: rgba(0,0,0,.8);
+}
+
+.slide pre.console code::before {
+    content: '';
+}
+
+.slide pre.console code {
+    color:#fff;
+}
+
+.slide.last h2 {
+    bottom: 50px;
+    position: absolute;
+}
+
+.slide.last .info {
+    position: absolute;
+    left: 50%;
+    width: 50%;
+}
+
+.slide.last .info .author {
+    margin: 0;
+}
+
+.full .slide.last
+{
+	z-index:1;
+}
+.full .slide.last:after
+{
+    content:'';
+}
+
+.slide.last .author.social {
+    margin-left: -118px;
+}
+
+.slide.last .author.social a {
+    border: none;
+    margin-left: 5px;
+}
+
+.slide.last .author.social a img {
+    padding: 0;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.slide.qr-code {
+    text-align: center;
+}
+
+.slide.qr-code img {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+
+    height: 80%;
+}
+
+.slide.qr-code a {
+    bottom: 0;
+    position: absolute;
+    font-size: 80px;
+    border: none;
+    left: 0;
+    display: block;
+    text-align: center;
+    width: 100%;
+    color: #fff;
+    line-height: 160%;
+    font-family: 'PT Mono', monospace;
+}
+
+.slide.first h2 {
+    background: none;
+}
+
+.slide .garmoshka .bellows {
+    z-index: 0;
+}
+
+.mem-title {
+    text-align: center;
+    font-size: 100px;
+    line-height: 100%;
+}
+
+.slide pre .tag {
+    background: none;
+}
+
+.slide.slide_type_console {
+    background: #000;
+    color: #fff;
+}
+
+.slide.slide_type_console h2 {
+    font-family: "Courier New", monospace;
+    background: none;
+}
+
+.slide ol, .slide ul {
+    font-size: 35px;
+}
+
+table {
+    margin: 0 0 50px;
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+tr {
+    border-bottom: solid 1px #ccc;
+}
+
+th {
+    text-align: left;
+    font-weight: bold;
+}
+
+table.striped tr:nth-child(even) {
+    background:#EEE;
+}
+
+.slide ul.support li:before {
+    content: '';
+    width: 100px;
+    height: 50px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 20px;
+}
+
+.slide.cover .next,
+.slide blockquote.next {
+    display: none;
+}
+
+body.list .slide.cover .next,
+.slide.cover .next.active,
+.slide blockquote.next.active,
+body.list .slide blockquote.next {
+    display: block;
+}
+
+.slide ul.no-bullets > li:before {
+    content: '';
+}
+
+.slide ul.small-list li {
+    font-size: 20px;
+}
+
+.first-red {
+    color: red;
+}
+
+.slide mark.next {
+    background: transparent;
+}
+
+body.list .slide mark.next,
+.slide mark.next.active {
+    background: rgba(236, 249, 0, .37);
+}
