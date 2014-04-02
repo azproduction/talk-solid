@@ -1,71 +1,68 @@
-var AnswerType = {
-    Choice: 0,
-    Input: 1
-};
-
 /**
  * @param {String}   label
  * @param {Number}   answerType
  * @param {String[]} [choices]
  * @constructor
  */
-function Question(label, answerType, choices) {
+function Question(label, choices) {
     this.label = label;
-    this.answerType = answerType;
     this.choices = choices;
 }
 
 function QuestionView() {}
 QuestionView.prototype = {
-    render: function (target, questions) {
-        for (var i = 0; i < questions.length; i++) {
-            this.renderQuestion(target, questions[i]);
-        }
-    },
+    _innerClass: 'question',
 
-    renderQuestion: function (target, question) {
+    render: function (target, question) {
         var questionWrapper = document.createElement('div');
-        questionWrapper.className = 'question';
+        questionWrapper.className = this._class();
 
         var questionLabel = document.createElement('div');
-        questionLabel.className = 'question__label';
+        questionLabel.className = this._class('label');
 
         var labelText = document.createTextNode(question.label);
         questionLabel.appendChild(labelText);
 
         var answer = document.createElement('div');
-        answer.className = 'question__input';
+        answer.className = this._class('input');
 
-        var input;
-
-        switch (question.answerType) {
-            case AnswerType.Choice:
-                input = document.createElement('select');
-                var len = question.choices.length;
-                for (var i = 0; i < len; i++) {
-                    var option = document.createElement('option');
-                    option.text = question.choices[i];
-                    option.value = question.choices[i];
-                    input.appendChild(option);
-                }
-                break;
-            case AnswerType.Input:
-                input = document.createElement('input');
-                input.type = 'text';
-                break;
-        }
+        var input = this.buildInput(question);
 
         answer.appendChild(input);
         questionWrapper.appendChild(questionLabel);
         questionWrapper.appendChild(answer);
         target.appendChild(questionWrapper);
+    },
+    _class: function (className) {
+        return this._innerClass + (className ? '__' + className : '');
     }
 };
 
-var questions = [
-    new Question('НЛО?', AnswerType.Choice, ['Да', 'Неа']),
-    new Question('Два+Два?', AnswerType.Input)
-];
+function QuestionViewInput() {};
+QuestionViewInput.prototype = new QuestionView();
+QuestionViewInput.prototype.buildInput = function (){
+    var input = document.createElement('input');
+    input.type = 'text';
 
-var questionRegion = document.getElementById('questions');
-new QuestionView().render(questionRegion, questions);
+    return input;
+}
+
+
+function QuestionViewChoice() {};
+QuestionViewChoice.prototype = new QuestionView();
+QuestionViewChoice.prototype.buildInput = function (question){
+    var input = document.createElement('select');
+    var len = question.choices.length;
+
+    for (var i = 0; i < len; i++) {
+        var option = document.createElement('option');
+        option.text = question.choices[i];
+        option.value = question.choices[i];
+        input.appendChild(option);
+    }
+
+    return input;
+}
+
+new QuestionViewChoice(new Question('НЛО?', ['Да', 'Неа']).render());
+new QuestionViewInput(new Question('Два+Два?')).render();
