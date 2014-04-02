@@ -15,50 +15,67 @@ function Question(label, answerType, choices) {
     this.choices = choices;
 }
 
-function QuestionView() {}
+function QuestionRendarer () {
+    this.rendarers = [];
+
+    this.addRendarer = function (choice, rendarer) {
+        this.rendarers[choice] = rendarer;
+    };
+
+    this.render = function (target, question) {
+        this.beforeRendar(target, question);
+        this.rendarers[question.choices].call(this, target, question);
+        this.afterRender(target);
+    };
+
+    this.beforeRendar = function (target, question) {
+        this.questionWrapper = document.createElement('div');
+        this.questionWrapper.className = 'question';
+
+        this.questionLabel = document.createElement('div');
+        this.questionLabel.className = 'question__label';
+
+        this.labelText = document.createTextNode(question.label);
+        this.questionLabel.appendChild(this.labelText);
+
+        this.answer = document.createElement('div');
+        this.answer.className = 'question__input';
+    };
+
+    this.afterRender = function (target) {
+        this.answer.appendChild(this.input);
+        this.questionWrapper.appendChild(this.questionLabel);
+        this.questionWrapper.appendChild(this.answer);
+        target.appendChild(this.questionWrapper);
+    };
+}
+
+
+function QuestionView() {
+    this.questionRendarer = QuestionRendarer();
+
+    this.questionRendarer.addRendarer(AnswerType.Choice, function (target, question) {
+        this.input = document.createElement('select');
+        var len = question.choices.length;
+        for (var i = 0; i < len; i++) {
+            var option = document.createElement('option');
+            option.text = question.choices[i];
+            option.value = question.choices[i];
+            this.input.appendChild(option);
+        }
+    });
+
+    this.questionRendarer.addRendarer(AnswerType.Input, function (target, question) {
+        this.input = document.createElement('input');
+        this.input.type = 'text';
+    });
+}
+
 QuestionView.prototype = {
     render: function (target, questions) {
         for (var i = 0; i < questions.length; i++) {
-            this.renderQuestion(target, questions[i]);
+            this.questionRendarer.render(target, questions[i]);
         }
-    },
-
-    renderQuestion: function (target, question) {
-        var questionWrapper = document.createElement('div');
-        questionWrapper.className = 'question';
-
-        var questionLabel = document.createElement('div');
-        questionLabel.className = 'question__label';
-
-        var labelText = document.createTextNode(question.label);
-        questionLabel.appendChild(labelText);
-
-        var answer = document.createElement('div');
-        answer.className = 'question__input';
-
-        var input;
-
-        switch (question.answerType) {
-            case AnswerType.Choice:
-                input = document.createElement('select');
-                var len = question.choices.length;
-                for (var i = 0; i < len; i++) {
-                    var option = document.createElement('option');
-                    option.text = question.choices[i];
-                    option.value = question.choices[i];
-                    input.appendChild(option);
-                }
-                break;
-            case AnswerType.Input:
-                input = document.createElement('input');
-                input.type = 'text';
-                break;
-        }
-
-        answer.appendChild(input);
-        questionWrapper.appendChild(questionLabel);
-        questionWrapper.appendChild(answer);
-        target.appendChild(questionWrapper);
     }
 };
 
