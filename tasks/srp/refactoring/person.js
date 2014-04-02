@@ -1,41 +1,65 @@
+var JUST = require('just');
+
 function Person(options) {
     options = options || {};
     this.name = options.name;
     this.url = options.url;
 
-    this.$el = this.render();
+    this.render();
     this.bindEvents();
-    this.$el.appendTo('.header');
 }
 
 Person.prototype = {
     render: function () {
-        var extraClass = this.isSameOrigin(this.url) ? ' b-person_origin_same' : '';
-        return $('<a href="' + this.url + '" class="b-person' + extraClass + '">' + this.name + '</a>');
+        var extraClass = this._getExtraClass();
+
+        this.template = this.getTemplate();
+
+        this.template.render({ name: this.name, url: this.url, extraClass: extraClass });
+    },
+
+    _getExtraClass: function () {
+        return this.isSameOrigin(this.url) ? ' b-person_origin_same' : '';
+    },
+
+    getTemplate: function () {
+        if (this.template) {
+            return this.template;
+        }
+
+        return new JUST({root: {
+                page: 'header',
+                layout: '<a href="<%= url %>" class="b-person <%= extraClass %>"><%= name %></a>'
+            }
+        });
     },
 
     isSameOrigin: function (url) {
-        var parser = document.createElement('a');
-        parser.href = url;
-
-        return location.origin === parser.origin;
+        return location.origin === url;
     },
 
     setName: function (name) {
         this.name = name;
-        this.$el.html(this.name);
+        this.render();
     },
 
     setUrl: function (url) {
         this.url = url;
-        this.$el.attr('href', this.url);
-        this.$el.toggleClass('b-person_origin_same', this.isSameOrigin(this.url));
+        this.render();
+    },
+
+    counter: function (params) {
+        yaCounter100500.params(params);
+    },
+
+    debug: function (name) {
+        console.log('debug', name);
     },
 
     bindEvents: function () {
-        this.$el.on('click', function () {
-            yaCounter100500.params('user_page_visited');
-            console.log('debug', 'user_page_visited');
-        });
+        this.template.on('click', function () {
+            this.counter('user_page_visited');
+            this.debug('user_page_visited');
+        }, this);
     }
 };
