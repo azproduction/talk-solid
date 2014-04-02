@@ -8,13 +8,15 @@ var PersonView = Backbone.View.extend({
         "click .b-person": "handleClick"
     },
 
-    className: "header",
+    layout: $('.header'),
 
     initialize: function(options) {
         var viewModel = {
             model: options.model
         };
         this.logger = options.logger;
+
+        this.setElement(this.layout);
         this.dataBindTo(viewModel);
     },
 
