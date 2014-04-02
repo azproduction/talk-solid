@@ -1,41 +1,50 @@
-function Person(options) {
-    options = options || {};
-    this.name = options.name;
-    this.url = options.url;
+var isSameOrigin = function (url) {
+    var parser = document.createElement('a');
+    parser.href = url;
 
-    this.$el = this.render();
-    this.bindEvents();
-    this.$el.appendTo('.header');
-}
+    return location.origin === parser.origin;
+};
 
-Person.prototype = {
-    render: function () {
-        var extraClass = this.isSameOrigin(this.url) ? ' b-person_origin_same' : '';
-        return $('<a href="' + this.url + '" class="b-person' + extraClass + '">' + this.name + '</a>');
-    },
-
-    isSameOrigin: function (url) {
-        var parser = document.createElement('a');
-        parser.href = url;
-
-        return location.origin === parser.origin;
-    },
-
-    setName: function (name) {
-        this.name = name;
-        this.$el.html(this.name);
-    },
-
-    setUrl: function (url) {
-        this.url = url;
-        this.$el.attr('href', this.url);
-        this.$el.toggleClass('b-person_origin_same', this.isSameOrigin(this.url));
-    },
-
-    bindEvents: function () {
-        this.$el.on('click', function () {
-            yaCounter100500.params('user_page_visited');
-            console.log('debug', 'user_page_visited');
-        });
+var Logger = {
+    log: function (msg) {
+        //yaCounter100500.params(msg);
+        console.log('debug', msg);
     }
 };
+
+var PersonModel = Backbone.Model.extend({});
+
+var PersonView = Backbone.View.extend({
+    initialize: function (o) {
+        this.listenTo(this.model, 'change:name', this._onNameChange);
+        this.listenTo(this.model, 'change:url', this._onUrlChange);
+        
+        this.template = o.template;
+        this.logger = o.logger
+    },
+
+    events: {
+        'click a': '_onLinkClick'
+    },
+
+    _onNameChange: function () {
+        this.render();
+    },
+
+    _onUrlChange: function () {
+        this.render();
+    },
+
+    _onLinkClick: function (e) {
+        this.logger.log('user_page_visited');
+        e.preventDefault();
+    },
+
+    render: function() {
+        this.$el.html(this.template({
+            data: this.model.attributes,
+            isSameOrigin: isSameOrigin
+        }));
+        return this;
+    }
+});
