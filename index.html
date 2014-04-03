@@ -712,6 +712,165 @@
     </section>
 
     <section class="slide">
+        <h2>Interface Segregation</h2>
+        <blockquote>Наследники не должны имплементировать методы, которыми они не пользуются.</blockquote>
+        <ul>
+            <li class="next">Похож на SRP, но применим для интерейса.</li>
+            <li class="next">Интерфейсы должны описывать одну сущность.</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Интерфейсы и JavaScript</h2>
+        <ul>
+            <li class="next">Сигнатура метода/операции
+                <ul>
+                    <li class="next">Имя метода</li>
+                    <li class="next">Предусловия и аргументы</li>
+                    <li class="next">Постусловия и результат</li>
+                </ul>
+            </li>
+            <li class="next">Интерфейс &mdash; совокупность сигнатур</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Интерфейсы и JavaScript</h2>
+        <pre class="javascript">
+            <code>// EventEmitter</code>
+            <code>{</code>
+            <code>    on: function(event, cb) {}</code>
+            <code>    off: function(event, cb) {}</code>
+            <code>    emit: function(event, data) {}</code>
+            <code>}</code>
+        </pre>
+        <a href="http://nodejs.org/docs/latest/api/events.html#events_class_events_eventemitter">Class: events.EventEmitter</a>
+    </section>
+
+    <section class="slide">
+        <h2>Интерфейсы и JavaScript</h2>
+        <pre class="javascript">
+            <code>// Promise aka thenable</code>
+            <code>{</code>
+            <code>    // @param {Function} [onFulfilled]</code>
+            <code>    // @param {Function} [onRejected]</code>
+            <code>    // @returns {Promise}</code>
+            <code>    then: function(onFulfilled, onRejected) {}</code>
+            <code>}</code>
+        </pre>
+        <a href="http://promises-aplus.github.io/promises-spec/">Promise/A+ Specification</a>
+    </section>
+
+    <section class="slide">
+        <h2>Пример</h2>
+        <pre class="javascript">
+            <code>class IWeapon {</code>
+            <code>    reload() {</code>
+            <code>        throw new AbstractMethodError();</code>
+            <code>    }</code>
+            <code>    fire() {</code>
+            <code>        throw new AbstractMethodError();</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример</h2>
+        <pre class="javascript">
+            <code>class Rifle extends IWeapon {</code>
+            <code>    reload() {</code>
+            <code>        this._pullHammer();</code>
+            <code>    }</code>
+            <code>    fire() {</code>
+            <code>        this._pullTrigger();</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример</h2>
+        <pre class="javascript">
+            <code>class Grenade extends IWeapon {</code>
+            <code>    <mark class="next">reload() {}</mark></code>
+            <code>    fire() {</code>
+            <code>        this._pullCheck();</code>
+            <code>        this._throw();</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li><code>Grenade</code> имплементирует заглушку reload</li>
+            <li>Заглушки могут вызвать проблемы в будущем</li>
+            <li>Интерфейс слишком общий для всех орудий</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример</h2>
+        <pre class="javascript">
+            <code><mark class="next">class IProduct</mark> {</code>
+            <code>    log(value) {throw new AbstractMethodError();}</code>
+            <code>    addTo(cart) {throw new AbstractMethodError();}</code>
+            <code>    destroy() {throw new AbstractMethodError();}</code>
+            <code>    getLink() {throw new AbstractMethodError();}</code>
+            <code>    updateImage(img) {throw new AbstractMethodError();}</code>
+            <code>    loadImage(img, cb) {throw new AbstractMethodError();}</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Пример</h2>
+        <pre class="javascript">
+            <code><mark class="next">class IButton</mark> {</code>
+            <code>    getIcon() {throw new AbstractMethodError();}</code>
+            <code>    getLabel(cart) {throw new AbstractMethodError();}</code>
+            <code>    getUrl() {throw new AbstractMethodError();}</code>
+            <code>    onClick(cb) {throw new AbstractMethodError();}</code>
+            <code>    onLongPress(cb) {throw new AbstractMethodError();}</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Интерфейс "толстый"</li>
+            <li>Содержит множество обязанностей</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Role Interface</h2>
+        <ul>
+            <li>Объект может иметь несколько ролей</li>
+            <li class="next">См. Стереотипы ролей объектов</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Влияние Interface Segregation</h2>
+        <ul>
+            <li>Один интерфейс = одна роль</li>
+            <li>Маленькие интерфейсы проще реиспользовать</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Задачи по ISP</h2>
+        <ul>
+            <li>Рефакторинг кода</li>
+            <li>Написание кода</li>
+        </ul>
+    </section>
+
+    <section class="slide">
         <h2>Заключение</h2>
         <ul>
             <li>TODO</li>
