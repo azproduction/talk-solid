@@ -858,12 +858,110 @@
         <h2>Влияние Interface Segregation</h2>
         <ul>
             <li>Один интерфейс = одна роль</li>
-            <li>Маленькие интерфейсы проще реиспользовать</li>
+            <li>Маленькие интерфейсы</li>
         </ul>
     </section>
 
     <section class="slide">
         <h2>Задачи по ISP</h2>
+        <ul>
+            <li>Рефакторинг кода</li>
+            <li>Написание кода</li>
+        </ul>
+    </section>
+
+    <section class="slide shout" style="background-image: url(pictures/dip-pattern.jpg)">
+        <h2>Dependency<br>Inversion<br>Principle</h2>
+    </section>
+
+    <section class="slide shout" style="background-image: url(pictures/dip-pattern.jpg)">
+        <h2>Принцип<br>инверсии<br>зависимости</h2>
+    </section>
+
+    <section class="slide">
+        <h2>Dependency Inversion</h2>
+        <blockquote>Модули верхнего уровня не должны зависеть от модулей нижнего уровня. Оба должны зависеть от абстракции.</blockquote>
+        <blockquote class="next">Абстракции не должны зависеть от деталей. Детали должны зависеть от абстракций.</blockquote>
+        <ul>
+            <li class="next">Прим: YBlock использует jQuery, YButton наследуется от YBlock.</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Пример</h2>
+        <pre class="javascript">
+            <code>class TrackMap {</code>
+            <code>    renderMap() {</code>
+            <code>        return new <mark class="next">google.maps.Map</mark>(<mark class="next">this.el, this.options</mark>);</code>
+            <code>    }</code>
+            <code>    addMarker(options) {</code>
+            <code>        new <mark class="next">google.maps.Marker</mark>(<mark class="next">options</mark>).<mark class="next">setMap(this.map)</mark>;</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Проблемы в примере</h2>
+        <ul>
+            <li>Имеет сильную связанность с <code>google.maps</code></li>
+            <li>Знает интерфейс <code>google.maps.Map</code></li>
+            <li>Знает интерфейс <code>google.maps.Marker</code></li>
+            <li>Знает как добавлять маркер на карту</li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Решение проблем в примере</h2>
+        <pre class="javascript">
+            <code>var MapProvider = {</code>
+            <code>    // @param {Object}   options</code>
+            <code>    // @param {Number[]} options.ll</code>
+            <code>    // @param {String}   options.title</code>
+            <code>    // @returns {IMarker}</code>
+            <code>    Marker(options) {}</code>
+            <code>    Map(options) {}</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Решение проблем в примере</h2>
+        <pre class="javascript">
+            <code>class TrackMap {</code>
+            <code>    constructor(mapProvider) {</code>
+            <code>        this.api = mapProvider;</code>
+            <code>    }</code>
+            <code>    addMarker(options) {</code>
+            <code>        var marker = new this.api.Marker(options);</code>
+            <code>        marker.addTo(this.map);</code>
+            <code>    }</code>
+            <code>}</code>
+        </pre>
+    </section>
+
+    <section class="slide">
+        <h2>Решение проблем в примере</h2>
+        <ul>
+            <li>Было: TrackMap &larr; <code>g.maps</code></li>
+            <li>Стало: TrackMap &rarr; MapProvider &larr; <code>*.maps</code></li>
+            <li>Теперь MapProvider имеет единый интерфейс</li>
+            <li>MapProvider использует <code>*.maps</code></li>
+        </ul>
+    </section>
+
+    <section class="slide">
+        <h2>Влияние Dependency Inversion</h2>
+        <ul>
+            <li>Мягкость &mdash; изменения затрагивают одну часть</li>
+            <li>Гибкость &mdash; изменения не ломают систему</li>
+            <li>Мобильность &mdash; модули не имеют жестких связей</li>
+        </ul>
+        <blockquote>Попытка реиспользовать модуль в новом проекте не должна привести к копипасту половыны модулей из старого проекта.</blockquote>
+    </section>
+
+    <section class="slide">
+        <h2>Задачи по DIP</h2>
         <ul>
             <li>Рефакторинг кода</li>
             <li>Написание кода</li>
