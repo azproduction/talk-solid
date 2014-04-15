@@ -27,6 +27,14 @@ RemoteStorage.prototype = {
         }).join('&');
     },
 
+    _bindToEvents: function (req, callback) {
+        req.addEventListener('load', function () {
+            callback(null, req);
+        }, false);
+        req.addEventListener('error', callback, false);
+        req.addEventListener('abort', callback, false);
+    },
+
     /**
      *
      * @param {String} action
@@ -39,11 +47,7 @@ RemoteStorage.prototype = {
         var req = new XMLHttpRequest();
         var query = this.serializeQuery(options.query);
 
-        req.addEventListener('load', function () {
-            callback(null, req);
-        }, false);
-        req.addEventListener('error', callback, false);
-        req.addEventListener('abort', callback, false);
+        this._bindToEvents(req, callback)
 
         req.open(ACTIONS_TO_METHODS_MAP[action], this.url + (query ? '?' + query : ''), true);
 
@@ -121,6 +125,41 @@ function LocalStorage(options) {
 }
 
 LocalStorage.prototype = Object.assign(Object.create(RemoteStorage.prototype), {
+
+    _getLocalVariable: function (id) {
+        return window[this.storageName][this.storagePrefix + id];
+    },
+
+    _setLocalVariable: function (id, value) {
+        return window[this.storageName][this.storagePrefix + id] = JSON.serialize({ responseText: value });
+    },
+
+    _deleteLocalVariable: function (id) {
+        return delete window[this.storageName][this.storagePrefix + id];
+    },
+
+    /**
+     *
+     * @param {String} action
+     * @param {Object} options
+     * @param {Object} options.query
+     * @param {Object} [options.body]
+     * @param {Function} callback
+     */
+    sync: function (action, options, callback) {
+        if (action === 'create' || action === 'update') {
+            callback(null, this._setLocalVariable(options.query.id, options.body.value));
+        }
+
+        if (action === 'read') {
+            callback(null, this._getLocalVariable(options.query.id));
+        }
+
+        if (action === 'delete') {
+            callback(null, this._deleteLocalVariable(options.query.id));
+        }
+    },
+
     /**
      *
      * @param {String} id
@@ -128,8 +167,12 @@ LocalStorage.prototype = Object.assign(Object.create(RemoteStorage.prototype), {
      * @param {Function} callback
      */
     create: function (id, value, callback) {
-        window[this.storageName][this.storagePrefix + id] = JSON.serialize(value);
-        callback(null);
+        this.sync('create', {
+            query: {
+                id: id
+            },
+            body: value
+        }, callback);
     },
 
     /**
@@ -138,7 +181,11 @@ LocalStorage.prototype = Object.assign(Object.create(RemoteStorage.prototype), {
      * @param {Function} callback
      */
     read: function (id, callback) {
-        callback(null, window[this.storageName][this.storagePrefix + id]);
+        this.sync('read', {
+            query: {
+                id: id
+            }
+        }, callback);
     },
 
     /**
@@ -148,8 +195,12 @@ LocalStorage.prototype = Object.assign(Object.create(RemoteStorage.prototype), {
      * @param {Function} callback
      */
     update: function (id, value, callback) {
-        window[this.storageName][this.storagePrefix + id] = JSON.serialize(value);
-        callback(null);
+        this.sync('update', {
+            query: {
+                id: id
+            },
+            body: value
+        }, callback);
     },
 
     /**
@@ -158,7 +209,11 @@ LocalStorage.prototype = Object.assign(Object.create(RemoteStorage.prototype), {
      * @param {Function} callback
      */
     'delete': function (id, callback) {
-        callback(null, delete window[this.storageName][this.storagePrefix + id]);
+        this.sync('delete', {
+            query: {
+                id: id
+            }
+        }, callback);
     }
 });
 
