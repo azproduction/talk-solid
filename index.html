@@ -940,11 +940,19 @@
         </pre>
     </section>
 
+    <section class="slide cover w c">
+        <div><img src="pictures/dip-before.png" alt=""/></div>
+    </section>
+
+    <section class="slide cover w c">
+        <div><img src="pictures/dip-after.png" alt=""/></div>
+    </section>
+
     <section class="slide">
         <h2>Решение проблем в примере</h2>
         <ul>
-            <li>Было: TrackMap &larr; <code>g.maps</code></li>
-            <li>Стало: TrackMap &rarr; MapProvider &larr; <code>*.maps</code></li>
+            <li>Было: TrackMap &rarr; <code>g.maps</code></li>
+            <li>Стало: TrackMap &larr; MapProvider &larr; <code>*.maps</code></li>
             <li>Теперь MapProvider имеет единый интерфейс</li>
             <li>MapProvider использует <code>*.maps</code></li>
         </ul>
