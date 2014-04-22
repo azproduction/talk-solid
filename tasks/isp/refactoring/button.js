@@ -2,8 +2,8 @@ function notImplemented() {
     throw new Error('Method is not implemented');
 }
 
-function AbstractButton(label) {
-    this.label = label;
+function AbstractButton(options) {
+    this.label = options.label;
     this.$el = this.render();
     this.bind();
 }
@@ -11,31 +11,13 @@ AbstractButton.prototype = {
     getLabel: function() {
         return this.label;
     },
-    getIcon: function () {
-        notImplemented();
-    },
-    getUrl: function () {
-        notImplemented();
-    },
-    onClick: function (e) {
-        notImplemented();
-    },
+    onClick: function (e) {},
     render: function () {
-        var icon = this.getIcon();
-        var url = this.getUrl();
         var label = this.getLabel();
         var $el = $('<button></button>');
 
-        if (icon) {
-            $el.append($('<img/>').attr('src', icon));
-        }
-
         if (label) {
             $el.append(label);
-        }
-
-        if (url) {
-            $el.wrap('<a href="' + url + '"></a>');
         }
 
         return $el;
@@ -45,26 +27,48 @@ AbstractButton.prototype = {
     }
 };
 
-function IconButton(icon) {
-    AbstractButton.call(this, void 0);
-    this.icon = icon;
+function IconButton(options) {
+    AbstractButton.call(this, options);
+    this.icon = options.icon;
 }
 IconButton.prototype = Object.extend(Object.create(AbstractButton.prototype), {
     getIcon: function () {
         return this.icon;
     },
-    getUrl: function () {},
-    onClick: function (e) {}
+    onClick: function (e) {
+        // some logic
+    },
+    render: function () {
+        var icon = this.getIcon(),
+            $el = IconButton.prototype.render.call(this);
+
+        if (icon) {
+            $el.append($('<img/>').attr('src', icon));
+        }
+
+        return $el;
+    }
 });
 
-function AnchorButton(label, url) {
-    AbstractButton.call(this, label);
-    this.url = url;
+function AnchorButton(options) {
+    AbstractButton.call(this, options);
+    this.url = options.url || '#';
 }
 AnchorButton.prototype = Object.extend(Object.create(AbstractButton.prototype), {
-    getIcon: function () {},
     getUrl: function () {
         return this.url;
     },
-    onClick: function (e) {}
+    onClick: function (e) {
+        // some logic
+    },
+    render: function () {
+        var label = this.getLabel();
+        var $el = $('<a href="' + this.getUrl() + '"></a>');
+
+        if (label) {
+            $el.append(label);
+        }
+
+        return $el;
+    }
 });
