@@ -2,6 +2,86 @@ function notImplemented() {
     throw new Error('Method is not implemented');
 }
 
+/**
+ * Интерфейс ссылки
+ *
+ * @param {String} url
+ * @param {String} content
+ * @constructor
+ */
+function AbstractLink(url, content) {
+    this.url = url;
+    this.content = content;
+    this.$el = this.render();
+}
+AbstractLink.prototype = {
+    getContent: function() {
+        return this.content;
+    },
+    getUrl: function () {
+        return this.url;
+    },
+    render: function () {
+        var url = this.getUrl();
+        var content = this.getContent();
+        var $el = '';
+
+        if (url) {
+            $el = $('<a></a>').attr('href', url);
+        } else {
+            $el = $('<span></span>');
+        }
+
+        if (content) {
+            $el.append(content);
+        }
+
+        return $el;
+    }
+};
+
+
+/**
+ * Интерфейс псевдо-ссылки
+ *
+ * @param {String} content
+ * @param {Function} cb
+ * @constructor
+ */
+function AbstractPseudoLink(content, cb) {
+    this.content = content;
+    this.cb = cb;
+    this.$el = this.render();
+    this.bind();
+}
+AbstractPseudoLink.prototype = {
+    getContent: function() {
+        return this.content;
+    },
+    onClick: function (e) {
+        this.cb(e);
+    },
+    render: function () {
+        var content = this.getContent();
+        var $el = $('<span></span>');
+
+        if (content) {
+            $el.append(content);
+        }
+
+        return $el;
+    },
+    bind: function () {
+        this.$el.click(this.onClick);
+    }
+};
+
+/**
+ * Интерфейс кнопки
+ *
+ * @param {String} label
+ * @constructor
+ */
 function AbstractButton(label) {
     this.label = label;
     this.$el = this.render();
@@ -14,15 +94,11 @@ AbstractButton.prototype = {
     getIcon: function () {
         notImplemented();
     },
-    getUrl: function () {
-        notImplemented();
-    },
     onClick: function (e) {
         notImplemented();
     },
     render: function () {
         var icon = this.getIcon();
-        var url = this.getUrl();
         var label = this.getLabel();
         var $el = $('<button></button>');
 
@@ -34,10 +110,6 @@ AbstractButton.prototype = {
             $el.append(label);
         }
 
-        if (url) {
-            $el.wrap('<a href="' + url + '"></a>');
-        }
-
         return $el;
     },
     bind: function () {
@@ -45,26 +117,45 @@ AbstractButton.prototype = {
     }
 };
 
-function IconButton(icon) {
-    AbstractButton.call(this, void 0);
-    this.icon = icon;
+/**
+ * Ссылка
+ *
+ * @param url
+ * @param content
+ * @constructor
+ */
+function Link(url, content) {
+    AbstractLink.call(this, url, content);
 }
-IconButton.prototype = Object.extend(Object.create(AbstractButton.prototype), {
-    getIcon: function () {
-        return this.icon;
-    },
-    getUrl: function () {},
-    onClick: function (e) {}
-});
 
-function AnchorButton(label, url) {
-    AbstractButton.call(this, label);
-    this.url = url;
+Link.prototype = Object.extend(Object.create(AbstractLink.prototype), {});
+
+/**
+ * Псевдо - Ссылка
+ *
+ * @param url
+ * @param content
+ * @constructor
+ */
+function PseudoLink(content, cb) {
+    AbstractPseudoLink.call(this, content, cb);
 }
+
+PseudoLink.prototype = Object.extend(Object.create(AbstractPseudoLink.prototype), {});
+
+/**
+ * Кнопка
+ *
+ * @param label
+ * @constructor
+ */
+function AnchorButton(label) {
+    AbstractButton.call(this, label);
+}
+
 AnchorButton.prototype = Object.extend(Object.create(AbstractButton.prototype), {
+    // Тут заглушка и да - это плохо (
     getIcon: function () {},
-    getUrl: function () {
-        return this.url;
-    },
+    // Это тоже очень плохо
     onClick: function (e) {}
 });
