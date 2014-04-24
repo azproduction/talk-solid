@@ -49,7 +49,7 @@ function IconButton(icon) {
     AbstractButton.call(this, void 0);
     this.icon = icon;
 }
-IconButton.prototype = Object.extend(Object.create(AbstractButton.prototype), {
+IconButton.prototype = Object.assign(Object.create(AbstractButton.prototype), {
     getIcon: function () {
         return this.icon;
     },
@@ -61,7 +61,7 @@ function AnchorButton(label, url) {
     AbstractButton.call(this, label);
     this.url = url;
 }
-AnchorButton.prototype = Object.extend(Object.create(AbstractButton.prototype), {
+AnchorButton.prototype = Object.assign(Object.create(AbstractButton.prototype), {
     getIcon: function () {},
     getUrl: function () {
         return this.url;
