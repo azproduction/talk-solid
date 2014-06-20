@@ -6,5 +6,5 @@
  - Interface segregation
  - Dependency inversion
 
-[Слайды](http://azproduction.ru/talk-solid/)
-[Задачи](tasks)
+ - [Слайды](http://azproduction.ru/talk-solid/)
+ - [Задачи по лекциям](tasks)
