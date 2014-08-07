@@ -1,22 +1,21 @@
-var debounce = require('debounce');
-
-var browser = navigator.userAgent.match(/[a-zA-Z]+\/[0-9.A-F]+/g)
-    .filter(function (string) {
-        return !/^(AppleWebKit|WebKit|Safari|Gecko|Mozilla)/.test(string);
-    })
-    .map(function (string) {
-        return string.replace(/^Version/, 'Safari');
-    })
-    .join(' ');
+var ErrorLogger = require('./error-handlers/debounce-error-logger'),
+        repeatTime = 1000,
+        needFirst = true,
+        formatter = ('./error-formater/object-error-formatter'),
+        adapter = require('./network-adapters/yaCounter')(yaCounter12208345, formatter);
 
 module.exports = function () {
-    window.onerror = debounce(function (message, file, line, column) {
-        yaCounter12208345.params(
-            'error',
-            location.hostname,
-            message,
-            file + ':' + line + ':' + (column || 0),
-            browser
-        );
-    }, 1000, true);
+    var logger = new ErrorLogger({
+        repeatTime: repeatTime,
+        needFirst: needFirst,
+        adapter: adapter
+    });
+    window.onerror = function (message, file, line, column) {
+        logger.handle({
+            message: message,
+            file: file,
+            line: line,
+            column: column
+        });
+    };
 };
