@@ -1,10 +1,3 @@
-var ACTIONS_TO_METHODS_MAP = {
-    'create': 'POST',
-    'read': 'GET',
-    'update': 'PUT',
-    'delete': 'DELETE'
-};
-
 /**
  *
  * @param {Object} options
@@ -16,15 +9,25 @@ function RemoteStorage(options) {
 }
 
 RemoteStorage.prototype = {
+    ACTIONS_TO_METHODS_MAP: {
+        'create': 'POST',
+        'read': 'GET',
+        'update': 'PUT',
+        'delete': 'DELETE'
+    },
+
     /**
      *
      * @param {Object} query
      * @returns {string}
+     * @private
      */
-    serializeQuery: function (query) {
-        return Object.keys(query).map(function (key) {
+    _buildUrl: function (query) {
+        var queryString = Object.keys(query).map(function (key) {
             return key + '=' + query[key];
         }).join('&');
+
+        return this.url + (queryString ? '?' + queryString : '');
     },
 
     /**
@@ -36,18 +39,53 @@ RemoteStorage.prototype = {
      * @param {Function} callback
      */
     sync: function (action, options, callback) {
-        var req = new XMLHttpRequest();
-        var query = this.serializeQuery(options.query);
+        if (!this._isActionAvailable(action)) {
+            throw new Error('UnsupportedMethodException'); // java <3
+        }
+
+        var self = this,
+            req = new XMLHttpRequest();
 
         req.addEventListener('load', function () {
-            callback(null, req);
+            var res = self._parseRequest(req, action);
+            callback(null, res);
         }, false);
-        req.addEventListener('error', callback, false);
-        req.addEventListener('abort', callback, false);
 
-        req.open(ACTIONS_TO_METHODS_MAP[action], this.url + (query ? '?' + query : ''), true);
+        req.addEventListener('error', function (error) {
+            console.log(arguments);
+            callback('error', {
+                error_msg: 'error!!!'
+            });
+        }, false);
 
-        req.send(options.body ? JSON.serialize(options.body) : void 0);
+        req.addEventListener('abort', function (error) {
+            callback('error', {
+                error_msg: 'abort!!!'
+            });
+        }, false);
+
+        req.open(this.ACTIONS_TO_METHODS_MAP[action], this._buildUrl(options.query), true);
+
+        req.send(JSON.stringify(options.body));
+    },
+
+    /**
+     * @param {XMLHttpRequest} req
+     * @param {String} action
+     * @private
+     */
+    _parseRequest: function (req, action) {
+        return action === 'GET' ?
+            {value: JSON.parse(req.responseText)} :
+            {success: req.status === 200};
+    },
+
+    /**
+     * @param {String} action
+     * @protected
+     */
+    _isActionAvailable: function (action) {
+        return typeof this.ACTIONS_TO_METHODS_MAP[action] !== 'undefined';
     },
 
     /**
@@ -123,42 +161,42 @@ function LocalStorage(options) {
 LocalStorage.prototype = Object.assign(Object.create(RemoteStorage.prototype), {
     /**
      *
-     * @param {String} id
-     * @param {Object} value
+     * @param {String} action
+     * @param {Object} options
+     * @param {Object} options.query
+     * @param {Object} [options.body]
      * @param {Function} callback
      */
-    create: function (id, value, callback) {
-        window[this.storageName][this.storagePrefix + id] = JSON.serialize(value);
-        callback(null);
-    },
+    sync: function (action, options, callback) {
+        if (!this._isActionAvailable(action)) {
+            throw new Error('UnsupportedMethodException'); // java <3
+        }
 
-    /**
-     *
-     * @param {String} id
-     * @param {Function} callback
-     */
-    read: function (id, callback) {
-        callback(null, window[this.storageName][this.storagePrefix + id]);
-    },
-
-    /**
-     *
-     * @param {String} id
-     * @param {Object} value
-     * @param {Function} callback
-     */
-    update: function (id, value, callback) {
-        window[this.storageName][this.storagePrefix + id] = JSON.serialize(value);
-        callback(null);
-    },
-
-    /**
-     *
-     * @param {String} id
-     * @param {Function} callback
-     */
-    'delete': function (id, callback) {
-        callback(null, delete window[this.storageName][this.storagePrefix + id]);
+        try {
+            switch (action) {
+                case 'create':
+                case 'update':
+                    window[this.storageName][this.storagePrefix + id] = JSON.stringify(value);
+                    callback(null, {
+                        success: true
+                    });
+                    break;
+                case 'delete':
+                    callback(null, {
+                        success: delete window[this.storageName][this.storagePrefix + id]
+                    });
+                    break;
+                case 'read':
+                    callback(null, {
+                        value: window[this.storageName][this.storagePrefix + id]
+                    });
+                    break;
+            }
+        }
+        catch(e) {
+            callback('error', {
+                error_msg: e.message
+            });
+        }
     }
 });
-
