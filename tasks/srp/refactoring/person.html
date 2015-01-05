@@ -1,0 +1,29 @@
+<!doctype html>
+<head>
+</head>
+<body>
+    <div class="header">
+    </div>
+    <script src="http://yandex.st/jquery/2.1.0/jquery.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="http://yandex.st/backbone/1.1.2/backbone-min.js"></script>
+    <script type="template" id="personTemplate">
+        <a href="<%= data.url %>" class="b-person <% isSameOrigin(data.url) && print('b-person_origin_same') %>"><%= data.name %></a>
+    </script>
+    <script src="person.js"></script>
+    <script>
+        var person = new PersonModel({
+            url: 'http://ya.ru',
+            name: 'Vasya'
+        });
+
+        var personView = new PersonView({
+            el: '.header',
+            model: person,
+            logger: Logger,
+            template: _.template($('#personTemplate').text())
+        });
+
+        personView.render();
+    </script>
+</body>
