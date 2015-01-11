@@ -15,50 +15,83 @@ function Question(label, answerType, choices) {
     this.choices = choices;
 }
 
-function QuestionView() {}
-QuestionView.prototype = {
-    render: function (target, questions) {
-        for (var i = 0; i < questions.length; i++) {
-            this.renderQuestion(target, questions[i]);
-        }
-    },
+function abstractQuestionRenderer() {}
 
-    renderQuestion: function (target, question) {
+abstractQuestionRenderer.prototype = {
+    render: function (question) {
         var questionWrapper = document.createElement('div');
         questionWrapper.className = 'question';
 
-        var questionLabel = document.createElement('div');
-        questionLabel.className = 'question__label';
+        var questionLabel = this.renderQuestionLabel(question);
+        
+        var answer = this.renderAnswer(question);
 
-        var labelText = document.createTextNode(question.label);
-        questionLabel.appendChild(labelText);
-
-        var answer = document.createElement('div');
-        answer.className = 'question__input';
-
-        var input;
-
-        switch (question.answerType) {
-            case AnswerType.Choice:
-                input = document.createElement('select');
-                var len = question.choices.length;
-                for (var i = 0; i < len; i++) {
-                    var option = document.createElement('option');
-                    option.text = question.choices[i];
-                    option.value = question.choices[i];
-                    input.appendChild(option);
-                }
-                break;
-            case AnswerType.Input:
-                input = document.createElement('input');
-                input.type = 'text';
-                break;
-        }
-
-        answer.appendChild(input);
         questionWrapper.appendChild(questionLabel);
         questionWrapper.appendChild(answer);
-        target.appendChild(questionWrapper);
+
+        return questionWrapper;
+    },
+
+    renderInput: function (question) {
+    },
+
+    renderQuestionLabel: function (question) {
+        var questionLabel = document.createElement('div');
+        questionLabel.className = 'question__label';
+        var labelText = document.createTextNode(question.label);
+        questionLabel.appendChild(labelText);
+        return questionLabel;
+    },
+
+    renderAnswer: function (question) {
+        var answer = document.createElement('div');
+        answer.className = 'question__input';
+        var input = this.renderInput(question);
+        answer.appendChild(input);
+        return answer;
+    }
+}
+
+function choiceQuestionRenderer() {}
+
+choiceQuestionRenderer.prototype = new abstractQuestionRenderer();
+
+choiceQuestionRenderer.prototype.renderInput = function(question) {
+    var input = document.createElement('select');
+    var len = question.choices.length;
+    for (var i = 0; i < len; i++) {
+        var option = document.createElement('option');
+        option.text = question.choices[i];
+        option.value = question.choices[i];
+        input.appendChild(option);
+    }
+    return input;
+}
+
+function inputQuestionRenderer() {}
+
+inputQuestionRenderer.prototype = new abstractQuestionRenderer();
+
+inputQuestionRenderer.prototype.renderInput = function (question) {
+    var input = document.createElement('input');
+    input.type = 'text';
+    return input;
+}
+
+
+function QuestionView(renderers) {
+    this.renderers = renderers;
+}
+
+QuestionView.prototype = {
+    render: function (target, questions) {
+        for (var i = 0; i < questions.length; i++) {
+            target.appendChild(this.renderQuestion(questions[i]));
+        }
+    },
+
+    renderQuestion: function (question) {
+        return this.renderers[question.answerType].render(question);
     }
 };
 
@@ -68,4 +101,8 @@ var questions = [
 ];
 
 var questionRegion = document.getElementById('questions');
-new QuestionView().render(questionRegion, questions);
+var renderers = {};
+renderers[AnswerType.Choice] = new choiceQuestionRenderer();
+renderers[AnswerType.Input] = new inputQuestionRenderer();
+
+new QuestionView(renderers).render(questionRegion, questions);
